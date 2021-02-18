@@ -6,6 +6,6 @@ orbs:
 workflows:
   integration-test:
     jobs:
-      - trigger:
+      - trigger-pipeline/trigger:
           slug: "rochecirclecipoc/rtables"
           branch: master
