@@ -25,6 +25,9 @@ jobs:
       parameters:
         type: string
         default: ""
+      timeout:
+        type: string
+        default: "180"
     executor: << parameters.executor >>
     steps:
       - when:
@@ -53,18 +56,43 @@ jobs:
       - run:
           name: Trigger << parameters.slug >> pipeline
           command: |
-            STATUSCODE=$(curl -L --output /dev/stderr --write-out "%{http_code}" \
+            STATUSCODE=$(curl -s -L --output /dev/stderr --write-out "%{http_code}" \
             -X POST \
             -H 'Content-Type: application/json' \
             -H 'Accept: application/json' \
             -H "Circle-Token: ${<< parameters.api_token_key >>}" \
             -d "$JSONBODY" \
-            https://circleci.com/api/v2/project/<< parameters.slug >>/pipeline)
+            https://circleci.com/api/v2/project/<< parameters.slug >>/pipeline 2> out.json)
             if test $STATUSCODE -ge 400; then
             echo
             echo "http status code: ${STATUSCODE}"
             exit 1
             fi
+      - run:
+          name: Wait << parameters.slug >> pipeline
+          command: |
+            JOB_NUM=$(cat out.json | jq -r .number)
+            for i in {1..<< parameters.timeout >>}; do
+                JOB_STATUS=$(curl -s -X GET https://circleci.com/api/v2/project/<< parameters.slug >>/${JOB_NUM} \
+                --header 'Content-Type: application/json' \
+                --header 'Accept: application/json' \
+                --header "Circle-Token: $CIRCLE_TOKEN" | jq -r .status)
+
+                echo Job status: ${JOB_STATUS}
+
+                case ${JOB_STATUS} in
+                    success) exit 0
+                    ;;
+                    fail) exit 1
+                    ;;
+                    *)
+                    sleep 1
+                    ;;
+                esac
+            done
+            echo "Timeout"
+            exit 1
+
 
 workflows:
   integration-test:
