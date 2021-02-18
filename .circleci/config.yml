@@ -7,5 +7,5 @@ workflows:
   integration-test:
     jobs:
       - trigger-pipeline/trigger:
-          slug: "rochecirclecipoc/rtables"
+          slug: "github/rochecirclecipoc/rtables"
           branch: master
