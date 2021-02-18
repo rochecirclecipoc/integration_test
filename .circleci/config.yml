@@ -68,11 +68,10 @@ jobs:
             echo "http status code: ${STATUSCODE}"
             exit 1
             fi
-            cat out.json
+            echo "export JOB_NUM=$(cat out.json | jq -r .number)" >> $BASH_ENV
       - run:
           name: Wait << parameters.slug >> pipeline
           command: |
-            JOB_NUM=$(cat out.json | jq -r .number)
             for i in {1..<< parameters.timeout >>}; do
                 JOB_STATUS=$(curl -s -X GET https://circleci.com/api/v2/project/<< parameters.slug >>/job/${JOB_NUM} \
                 --header 'Content-Type: application/json' \
