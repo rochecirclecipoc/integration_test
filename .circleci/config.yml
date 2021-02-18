@@ -71,7 +71,9 @@ jobs:
       - run:
           name: Wait << parameters.slug >> pipeline
           command: |
+            cat out.json
             JOB_NUM=$(cat out.json | jq -r .number)
+            echo $JOB_NUM
             for i in {1..<< parameters.timeout >>}; do
                 JOB_STATUS=$(curl -s -X GET https://circleci.com/api/v2/project/<< parameters.slug >>/${JOB_NUM} \
                 --header 'Content-Type: application/json' \
