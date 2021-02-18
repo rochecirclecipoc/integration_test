@@ -73,12 +73,12 @@ jobs:
       - run:
           name: Wait << parameters.slug >> pipeline
           command: |
-            echo "Waiting for job ${TRIGGERJOBNUM}..."
+            echo "Waiting for job ${TRIGGERJOB_ID}..."
             for i in {1..<< parameters.timeout >>}; do
                 JOB_STATUS=$(curl -s -X GET https://circleci.com/api/v2/pipeline/${TRIGGERJOB_ID}/workflow \
                 --header 'Content-Type: application/json' \
                 --header 'Accept: application/json' \
-                --header "Circle-Token: $CIRCLE_TOKEN" | jq -r .status)
+                --header "Circle-Token: $CIRCLE_TOKEN" | jq -r '.items[] | .status')
 
                 test $(($i%10)) -eq 0 && echo "Job status: ${JOB_STATUS}... waiting ${i}/<< parameters.timeout >> sec"
 
