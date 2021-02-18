@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  trigger-pipeline: sensu/trigger-pipeline@1.0.0
+  trigger-pipeline: rochecirclecipoc/trigger-pipeline@1.0.0
 
 
 workflows:
@@ -15,3 +15,8 @@ workflows:
           slug: "github/rochecirclecipoc/simpleR"
           requires:
             - rtables
+      - trigger-pipeline/trigger:
+          name: rbaseimage
+          slug: "github/rochecirclecipoc/rbaseimage"
+          requires:
+            - simpleR
