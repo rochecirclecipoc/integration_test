@@ -68,6 +68,7 @@ jobs:
             echo "http status code: ${STATUSCODE}"
             exit 1
             fi
+            cat out.json
       - run:
           name: Wait << parameters.slug >> pipeline
           command: |
@@ -108,15 +109,15 @@ jobs:
 workflows:
   integration-test:
     jobs:
-      - trigger:
-          name: rtables
-          slug: "github/rochecirclecipoc/rtables"
-          branch: master
+      # - trigger:
+      #     name: rtables
+      #     slug: "github/rochecirclecipoc/rtables"
+      #     branch: master
       - trigger:
           name: simpleR
           slug: "github/rochecirclecipoc/simpleR"
-          requires:
-            - rtables
+          # requires:
+          #   - rtables
       - trigger:
           name: rbaseimage
           slug: "github/rochecirclecipoc/rbaseimage"
