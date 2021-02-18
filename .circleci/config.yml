@@ -9,3 +9,5 @@ workflows:
       - trigger-pipeline/trigger:
           slug: "github/rochecirclecipoc/rtables"
           branch: master
+      - trigger-pipeline/trigger:
+          slug: "github/rochecirclecipoc/simpleR"
