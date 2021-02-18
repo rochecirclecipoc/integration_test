@@ -1,0 +1,11 @@
+version: 2.1
+orbs:
+  trigger-pipeline: sensu/trigger-pipeline@1.0.0
+
+
+workflows:
+  integration-test:
+    jobs:
+      - trigger-pipeline:
+          slug: "rochecirclecipoc/rtables"
+          branch: master
