@@ -72,14 +72,14 @@ jobs:
       - run:
           name: Wait << parameters.slug >> pipeline
           command: |
-            sleep 5
+            echo "Waiting for job ${TRIGGERJOBNUM}..."
             for i in {1..<< parameters.timeout >>}; do
                 JOBSTATUS=$(curl -s -X GET https://circleci.com/api/v2/project/<< parameters.slug >>/job/${TRIGGERJOBNUM} \
                 --header 'Content-Type: application/json' \
                 --header 'Accept: application/json' \
                 --header "Circle-Token: $CIRCLE_TOKEN" | jq -r .status)
 
-                test $(($i%10)) -eq 0 && echo Job status: ${JOBSTATUS}... waiting $i/<< parameters.timeout >> sec
+                test $(($i%10)) -eq 0 && echo "Job status: ${JOBSTATUS}... waiting ${i}/<< parameters.timeout >> sec"
 
                 case ${JOBSTATUS} in
                     success)
