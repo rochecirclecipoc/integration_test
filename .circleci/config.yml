@@ -75,17 +75,29 @@ jobs:
             JOB_NUM=$(cat out.json | jq -r .number)
             echo $JOB_NUM
             for i in {1..<< parameters.timeout >>}; do
-                JOB_STATUS=$(curl -s -X GET https://circleci.com/api/v2/project/<< parameters.slug >>/${JOB_NUM} \
+                JOB_STATUS=$(curl -s -X GET https://circleci.com/api/v2/project/<< parameters.slug >>/job/${JOB_NUM} \
                 --header 'Content-Type: application/json' \
                 --header 'Accept: application/json' \
                 --header "Circle-Token: $CIRCLE_TOKEN" | jq -r .status)
 
-                echo Job status: ${JOB_STATUS}
+                echo Job status: ${JOB_STATUS}... waiting
 
                 case ${JOB_STATUS} in
-                    success) exit 0
+                    success)
+                      echo Job status: ${JOB_STATUS}
+                      exit 0
                     ;;
-                    fail) exit 1
+                    failed)
+                      echo Job status: ${JOB_STATUS}
+                      exit 1
+                    ;;
+                    canceled) 
+                      echo Job status: ${JOB_STATUS}
+                      exit 1
+                    ;;
+                    null)
+                      echo Job ${JOB_NUM} not found...
+                      exit 1
                     ;;
                     *)
                     sleep 1
