@@ -68,6 +68,7 @@ jobs:
             echo "http status code: ${STATUSCODE}"
             exit 1
             fi
+            cat out.json
             echo "export TRIGGERJOBNUM=$(cat out.json | jq -r .number)" >> $BASH_ENV
       - run:
           name: Wait << parameters.slug >> pipeline
