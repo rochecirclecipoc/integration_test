@@ -95,16 +95,12 @@ jobs:
                       echo Job status: ${JOB_STATUS}
                       exit 1
                     ;;
-                    null)
-                      echo Job ${TRIGGERJOB_ID} not found...
-                      exit 1
-                    ;;
                     *)
                     sleep 1
                     ;;
                 esac
             done
-            echo "Timeout"
+            echo "Job ${TRIGGERJOB_ID} timeout..."
             exit 1
 
 
