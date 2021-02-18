@@ -79,6 +79,8 @@ jobs:
                 --header 'Accept: application/json' \
                 --header "Circle-Token: $CIRCLE_TOKEN" | jq -r .status)
 
+                test $(($i%10)) -eq 0 && echo Job status: ${JOB_STATUS}... waiting $i/<< parameters.timeout >> sec
+
                 case ${JOB_STATUS} in
                     success)
                       echo Job status: ${JOB_STATUS}
@@ -97,7 +99,6 @@ jobs:
                       exit 1
                     ;;
                     *)
-                    test $(($i%10)) -eq 0 && echo Job status: ${JOB_STATUS}... waiting $i/<< parameters.timeout >> sec
                     sleep 1
                     ;;
                 esac
