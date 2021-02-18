@@ -69,34 +69,34 @@ jobs:
             exit 1
             fi
             cat out.json
-            echo "export TRIGGERJOBNUM=$(cat out.json | jq -r .number)" >> $BASH_ENV
+            echo "export TRIGGERJOB_ID=$(cat out.json | jq -r .id)" >> $BASH_ENV
       - run:
           name: Wait << parameters.slug >> pipeline
           command: |
             echo "Waiting for job ${TRIGGERJOBNUM}..."
             for i in {1..<< parameters.timeout >>}; do
-                JOBSTATUS=$(curl -s -X GET https://circleci.com/api/v2/project/<< parameters.slug >>/job/${TRIGGERJOBNUM} \
+                JOB_STATUS=$(curl -s -X GET https://circleci.com/api/v2/pipeline/${TRIGGERJOB_ID}/workflow \
                 --header 'Content-Type: application/json' \
                 --header 'Accept: application/json' \
                 --header "Circle-Token: $CIRCLE_TOKEN" | jq -r .status)
 
-                test $(($i%10)) -eq 0 && echo "Job status: ${JOBSTATUS}... waiting ${i}/<< parameters.timeout >> sec"
+                test $(($i%10)) -eq 0 && echo "Job status: ${JOB_STATUS}... waiting ${i}/<< parameters.timeout >> sec"
 
-                case ${JOBSTATUS} in
+                case ${JOB_STATUS} in
                     success)
-                      echo Job status: ${JOBSTATUS}
+                      echo Job status: ${JOB_STATUS}
                       exit 0
                     ;;
                     failed)
-                      echo Job status: ${JOBSTATUS}
+                      echo Job status: ${JOB_STATUS}
                       exit 1
                     ;;
                     canceled) 
-                      echo Job status: ${JOBSTATUS}
+                      echo Job status: ${JOB_STATUS}
                       exit 1
                     ;;
                     null)
-                      echo Job ${TRIGGERJOBNUM} not found...
+                      echo Job ${TRIGGERJOB_ID} not found...
                       exit 1
                     ;;
                     *)
