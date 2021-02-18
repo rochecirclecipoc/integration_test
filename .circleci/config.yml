@@ -7,9 +7,11 @@ workflows:
   integration-test:
     jobs:
       - trigger-pipeline/trigger:
+          name: rtables
           slug: "github/rochecirclecipoc/rtables"
           branch: master
       - trigger-pipeline/trigger:
+          name: simpleR
           slug: "github/rochecirclecipoc/simpleR"
           requires:
-            - trigger-pipeline/trigger-1
+            - rtables
