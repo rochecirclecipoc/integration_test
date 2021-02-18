@@ -11,3 +11,5 @@ workflows:
           branch: master
       - trigger-pipeline/trigger:
           slug: "github/rochecirclecipoc/simpleR"
+          requires:
+            - trigger-pipeline/trigger-1
