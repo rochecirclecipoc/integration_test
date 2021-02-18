@@ -1,21 +1,84 @@
 version: 2.1
-orbs:
-  trigger-pipeline: rochecirclecipoc/trigger-pipeline@1.0.0
 
+executors:
+  base:
+    docker:
+      - image: cimg/base:2021.01-20.04
+
+jobs:
+  trigger:
+    parameters:
+      executor:
+        type: executor
+        default: base
+      slug:
+        type: string
+      branch:
+        type: string
+        default: main
+      tag:
+        type: string
+        default: ""
+      api_token_key:
+        type: env_var_name
+        default: CIRCLE_TOKEN
+      parameters:
+        type: string
+        default: ""
+    executor: << parameters.executor >>
+    steps:
+      - when:
+          condition:
+            not:
+              equal: [<< parameters.tag >>, ""]
+          steps:
+            - run:
+                name: Build JSON body for pipeline trigger using tag
+                command: >
+                  echo "export JSONBODY='{
+                  \"tag\":\"<< parameters.tag >>\",
+                  \"parameters\":{<< parameters.parameters >>}
+                  }'" >> $BASH_ENV
+      - when:
+          condition:
+            equal: [<< parameters.tag >>, ""]
+          steps:
+            - run:
+                name: Build JSON body for pipeline trigger using branch
+                command: >
+                  echo "export JSONBODY='{
+                  \"branch\":\"<< parameters.branch >>\",
+                  \"parameters\":{<< parameters.parameters >>}
+                  }'" >> $BASH_ENV
+      - run:
+          name: Trigger << parameters.slug >> pipeline
+          command: |
+            STATUSCODE=$(curl -L --output /dev/stderr --write-out "%{http_code}" \
+            -X POST \
+            -H 'Content-Type: application/json' \
+            -H 'Accept: application/json' \
+            -H "Circle-Token: ${<< parameters.api_token_key >>}" \
+            -d "$JSONBODY" \
+            https://circleci.com/api/v2/project/<< parameters.slug >>/pipeline)
+            if test $STATUSCODE -ge 400; then
+            echo
+            echo "http status code: ${STATUSCODE}"
+            exit 1
+            fi
 
 workflows:
   integration-test:
     jobs:
-      - trigger-pipeline/trigger:
+      - trigger:
           name: rtables
           slug: "github/rochecirclecipoc/rtables"
           branch: master
-      - trigger-pipeline/trigger:
+      - trigger:
           name: simpleR
           slug: "github/rochecirclecipoc/simpleR"
           requires:
             - rtables
-      - trigger-pipeline/trigger:
+      - trigger:
           name: rbaseimage
           slug: "github/rochecirclecipoc/rbaseimage"
           requires:
